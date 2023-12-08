@@ -2,6 +2,7 @@ varying vec2      in_FragCoord;
 uniform float     in_Resolution, in_RaysPerPixel, in_StepsPerRay;
 uniform sampler2D in_DistanceField, in_BlueNoise;
 
+#define DECAYRATE 0.95 // Light absorption decay from implicit ray bounces: 0.85 - 0.95 optimal.
 #define EPSILON  0.0001
 #define TAU      float(6.2831853071795864769252867665590)
 #define V2F16(v) ((v.y * float(0.0039215686274509803921568627451)) + v.x)
@@ -11,7 +12,7 @@ vec3 raymarch(vec2 pix, vec2 dir) {
 		vec2 sdf = texture2D(in_DistanceField, pix).rg;
 		
 		if ((dist = V2F16(sdf)) < EPSILON)
-			return max(texture2D(gm_BaseTexture, pix).rgb, texture2D(gm_BaseTexture, pix - (dir * (1.0/in_Resolution))).rgb);
+			return max(texture2D(gm_BaseTexture, pix).rgb, texture2D(gm_BaseTexture, pix - (dir * (1.0/in_Resolution))).rgb * DECAYRATE);
 	}
 	return vec3(0.0);
 }
